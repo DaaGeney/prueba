@@ -4,4 +4,4 @@ var BD = {
     hobbyList: ['coding', 'writing', 'skiing']
 }
 
-export default BD
+export default BD 

@@ -5,14 +5,15 @@ import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
+import Snackbar from '@material-ui/core/Snackbar';
 import CardHeader from '@material-ui/core/CardHeader';
-import BD from './BD'
+import Alert from '@material-ui/lab/Alert';
+import ToDoList from './ToDoList'
+
+
 const useStyles = makeStyles({
   root: {
     minWidth: 500,
-  },
-  limit: {
-
   },
   bullet: {
     display: 'inline-block',
@@ -31,19 +32,42 @@ const useStyles = makeStyles({
   }
 });
 
-function IndexCard(props) {
+function IndexCard() {
   const classes = useStyles();
   const [task, setTask] = useState("");
-  
 
-  let handleChange =(e) =>{
+  const [toDoList, settoDoList] = useState([]);
+  const [open, setOpen] = React.useState(false);
+  const validateCreation = new RegExp("^.{6,40}$");
+
+  let handleChange = (e) => {
     setTask(e.target.value)
   }
 
-  let handleClick = (e) =>{
+  const snackBar = () => {
+    setOpen(true);
+  };
+
+  const handleClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setOpen(false);
+  };
+
+  const onDelete = (id) => {
+    let temp = toDoList.map(e => e.toDo === id ? { ...e, estado: "Eliminado" } : e)
+    settoDoList([...temp]);
+  }
+
+  const handleClick = (e) => {
     e.preventDefault()
-    //BD.push({ToDo: "task", estate: "Imcompleto"})
-    console.log("BD");
+    if (validateCreation.test(task)) {
+      settoDoList([...toDoList, { toDo: task, estado: "Incompleto" }]);
+      setTask('')
+    } else {
+      snackBar();
+    }
   }
 
   return (
@@ -53,18 +77,24 @@ function IndexCard(props) {
           title="To Do "
           subheader="Add To Do "
         />
+        <Snackbar open={open} autoHideDuration={2000} onClose={handleClose}>
+          <Alert severity="error">Número de caracteres invalido!</Alert>
+
+        </Snackbar>
         <CardContent>
           <div>
             <br />
-            <TextField id="Description" label="Description" onChange={handleChange} value={task} inputProps={{ maxLength: 40 }}  variant="filled" />
+            <TextField id="Description" label="Description" onChange={handleChange} value={task} inputProps={{ maxLength: 40 }} variant="filled" />
           </div>
         </CardContent>
         <CardActions className={classes.actions}>
-          <Button variant="contained" type="submit"  color="primary">
+          <Button variant="contained" type="submit" color="primary">
             Add
         </Button>
         </CardActions>
-
+        {
+          toDoList.map(e => <ToDoList toDo={e.toDo} estado={e.estado} onDelete={onDelete}/>)
+        }
       </Card>
     </form>
 
