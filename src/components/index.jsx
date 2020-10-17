@@ -9,6 +9,11 @@ import Snackbar from '@material-ui/core/Snackbar';
 import CardHeader from '@material-ui/core/CardHeader';
 import Alert from '@material-ui/lab/Alert';
 import ToDoList from './ToDoList'
+import Radio from '@material-ui/core/Radio';
+import RadioGroup from '@material-ui/core/RadioGroup';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import FormControl from '@material-ui/core/FormControl';
+import FormLabel from '@material-ui/core/FormLabel';
 
 
 const useStyles = makeStyles({
@@ -35,16 +40,19 @@ const useStyles = makeStyles({
 function IndexCard() {
   const classes = useStyles();
   const [task, setTask] = useState("");
-
+  const [oldTask, setOld] = useState("");
+  const [textSnack, setTextSnack] = useState("");
   const [toDoList, settoDoList] = useState([]);
   const [open, setOpen] = React.useState(false);
   const validateCreation = new RegExp("^.{6,40}$");
-
+  const [edit, setEdit] = useState(false);
+  const [value, setValue] = React.useState('female');
   let handleChange = (e) => {
     setTask(e.target.value)
   }
 
-  const snackBar = () => {
+  const snackBar = (msg) => {
+    setTextSnack(msg)
     setOpen(true);
   };
 
@@ -56,17 +64,45 @@ function IndexCard() {
   };
 
   const onDelete = (id) => {
-    let temp = toDoList.map(e => e.toDo === id ? { ...e, estado: "Eliminado" } : e)
+    const result = toDoList.filter(e => e.toDo === id);
+    if (result[0].estado === 'Incompleto') {
+      let temp = toDoList.map(e => e.toDo === id ? { ...e, estado: "Eliminado" } : e)
+      settoDoList([...temp]);
+    } else {
+      snackBar("Esta tarea ya fue completada o eliminada");
+    }
+
+  }
+  const onComplete = (id) => {
+    let temp = toDoList.map(e => e.toDo === id ? { ...e, estado: "Completado" } : e)
     settoDoList([...temp]);
   }
+
+  const onEdit = (id) => {
+    setTask(id)
+    setOld(id)
+    setEdit(true)
+  }
+
+  const handleRadio = (event) => {
+    setValue(event.target.value);
+  };
 
   const handleClick = (e) => {
     e.preventDefault()
     if (validateCreation.test(task)) {
-      settoDoList([...toDoList, { toDo: task, estado: "Incompleto" }]);
-      setTask('')
+      if (!edit) {
+        settoDoList([...toDoList, { toDo: task, estado: "Incompleto" }]);
+        setTask('')
+      } else {
+        let temp = toDoList.map(e => e.toDo === oldTask ? { ...e, toDo: task } : e)
+        settoDoList([...temp]);
+        setEdit(false)
+        setTask('')
+      }
+
     } else {
-      snackBar();
+      snackBar("Número de caracteres invalido!");
     }
   }
 
@@ -78,8 +114,7 @@ function IndexCard() {
           subheader="Add To Do "
         />
         <Snackbar open={open} autoHideDuration={2000} onClose={handleClose}>
-          <Alert severity="error">Número de caracteres invalido!</Alert>
-
+          <Alert severity="error">{textSnack}</Alert>
         </Snackbar>
         <CardContent>
           <div>
@@ -89,11 +124,20 @@ function IndexCard() {
         </CardContent>
         <CardActions className={classes.actions}>
           <Button variant="contained" type="submit" color="primary">
-            Add
-        </Button>
+            {edit ? "Editar" : "Crear"}
+          </Button>
         </CardActions>
+        <FormControl component="fieldset">
+          <FormLabel component="legend">Filtro</FormLabel>
+          <RadioGroup row aria-label="Filtro" name="gender1" value={value} onChange={handleRadio}>
+            <FormControlLabel value="Completado" control={<Radio />} label="Completado" />
+            <FormControlLabel value="Eliminado" control={<Radio />} label="Eliminado" />
+            <FormControlLabel value="Incompleto" control={<Radio />} label="Incompleto" />
+            <FormControlLabel value="Todo" control={<Radio />} label="Todo" />
+          </RadioGroup>
+        </FormControl>
         {
-          toDoList.map(e => <ToDoList toDo={e.toDo} estado={e.estado} onDelete={onDelete}/>)
+          toDoList.map(e => <ToDoList key={e.toDo} toDo={e.toDo} estado={e.estado} onDelete={onDelete} onEdit={onEdit} onComplete={onComplete} />)
         }
       </Card>
     </form>

@@ -7,9 +7,6 @@ function App() {
     <div className="App">
       <header className="App-header">
         <IndexCard/>
-     
-       
-
       </header>
     </div>
   );
