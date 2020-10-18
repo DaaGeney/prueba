@@ -112,7 +112,6 @@ function IndexCard() {
     );
   }
 
-
   const handleRadio = (event) => {
     setValue(event.target.value);
     setAuxTodoList([...toDoList.filter(e => e.estado === event.target.value)])
@@ -122,13 +121,7 @@ function IndexCard() {
     e.preventDefault()
     if (validateCreation.test(task)) {
       if (!edit) {
-        if(auxToDoList){
-          setAuxTodoList([...auxToDoList, { toDo: task, estado: "Incompleto" }]);
-          setValue('Todo')
-          settoDoList([...auxToDoList])
-        }else{
-          settoDoList([...toDoList, { toDo: task, estado: "Incompleto" }]);
-        }
+        settoDoList([...toDoList, { toDo: task, estado: "Incompleto" }]);
         setTask('')
         setCountingIncompleted(countingIncompleted + 1)
       } else {
