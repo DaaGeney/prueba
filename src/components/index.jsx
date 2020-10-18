@@ -14,7 +14,8 @@ import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormControl from '@material-ui/core/FormControl';
 import FormLabel from '@material-ui/core/FormLabel';
-
+import ListItem from '@material-ui/core/ListItem';
+import ListItemText from '@material-ui/core/ListItemText';
 
 const useStyles = makeStyles({
   root: {
@@ -33,21 +34,24 @@ const useStyles = makeStyles({
   },
   actions: {
     display: "flex",
-    justifyContent: "space-between"
+    justifyContent: 'center'
   }
 });
 
 function IndexCard() {
   const classes = useStyles();
   const [task, setTask] = useState("");
+  const [countingDeleted, setCountingDeleted] = useState(0);
+  const [countingIncompleted, setCountingIncompleted] = useState(0);
+  const [countingDone, setCountingDone] = useState(0);
   const [oldTask, setOld] = useState("");
   const [textSnack, setTextSnack] = useState("");
   const [toDoList, settoDoList] = useState([]);
-  const [auxToDoList, setAuxTodoList] = useState();
+  const [auxToDoList, setAuxTodoList] = useState([]);
   const [open, setOpen] = React.useState(false);
   const validateCreation = new RegExp("^.{6,40}$");
   const [edit, setEdit] = useState(false);
-  const [value, setValue] = React.useState('Todo');
+  const [value, setValue] = React.useState('Blank');
   let handleChange = (e) => {
     setTask(e.target.value)
   }
@@ -69,36 +73,49 @@ function IndexCard() {
     if (result[0].estado === 'Incompleto') {
       let temp = toDoList.map(e => e.toDo === id ? { ...e, estado: "Eliminado" } : e)
       settoDoList([...temp]);
+      setCountingIncompleted(countingIncompleted - 1)
+      setCountingDeleted(countingDeleted + 1)
     } else {
       snackBar("Esta tarea ya fue completada o eliminada");
     }
   }
 
   const onComplete = (id) => {
-    let temp = toDoList.map(e => e.toDo === id ? { ...e, estado: "Completado" } : e)
-    settoDoList([...temp]);
+    const result = toDoList.filter(e => e.toDo === id);
+    if (result[0].estado === 'Incompleto') {
+      let temp = toDoList.map(e => e.toDo === id ? { ...e, estado: "Completado" } : e)
+      settoDoList([...temp]);
+      setCountingIncompleted(countingIncompleted - 1)
+      setCountingDone(countingDone + 1)
+    } else {
+      snackBar("Esta tarea ya fue completada o eliminada");
+    }
   }
 
   const onEdit = (id) => {
-    setTask(id)
-    setOld(id)
-    setEdit(true)
+    const result = toDoList.filter(e => e.toDo === id);
+    if (result[0].estado === 'Incompleto') {
+      setTask(id)
+      setOld(id)
+      setEdit(true)
+    } else {
+      snackBar("Esta tarea ya fue completada o eliminada");
+    }
+  }
+
+  const ToDoListAux = (props) => {
+    const { toDo } = props;
+    return (
+      <ListItem key={toDo}>
+        <ListItemText primary={` ${toDo} `} />
+      </ListItem>
+    );
   }
 
 
   const handleRadio = (event) => {
     setValue(event.target.value);
-    if (event.target.value !== "Todo") {
-      if (auxToDoList) {
-        settoDoList(auxToDoList.filter(e => e.estado === event.target.value))
-      } else {
-        setAuxTodoList([...toDoList])
-        settoDoList(toDoList.filter(e => e.estado === event.target.value))
-      }
-
-    } else {
-      settoDoList([...auxToDoList])
-    }
+    setAuxTodoList([...toDoList.filter(e => e.estado === event.target.value)])
   };
 
   const handleClick = (e) => {
@@ -106,7 +123,6 @@ function IndexCard() {
     if (validateCreation.test(task)) {
       if (!edit) {
         if(auxToDoList){
-          
           setAuxTodoList([...auxToDoList, { toDo: task, estado: "Incompleto" }]);
           setValue('Todo')
           settoDoList([...auxToDoList])
@@ -114,15 +130,14 @@ function IndexCard() {
           settoDoList([...toDoList, { toDo: task, estado: "Incompleto" }]);
         }
         setTask('')
-        
+        setCountingIncompleted(countingIncompleted + 1)
       } else {
-        
         let temp = toDoList.map(e => e.toDo === oldTask ? { ...e, toDo: task } : e)
         settoDoList([...temp]);
         setEdit(false)
         setTask('')
+        setValue('Blank')
       }
-
     } else {
       snackBar("Número de caracteres invalido!");
     }
@@ -149,21 +164,25 @@ function IndexCard() {
             {edit ? "Editar" : "Crear"}
           </Button>
         </CardActions>
+        {
+          toDoList.map(e => <ToDoList key={e.toDo} toDo={e.toDo} onDelete={onDelete} onEdit={onEdit} onComplete={onComplete} />)
+        }
+        <div className={classes.root}>{`Completos: ${countingDone}, Incompletos: ${countingIncompleted}, Eliminados: ${countingDeleted}`}</div>
         <FormControl component="fieldset">
           <FormLabel component="legend">Filtro</FormLabel>
           <RadioGroup row aria-label="Filtro" name="gender1" color="blue" value={value} onChange={handleRadio}>
             <FormControlLabel value="Completado" control={<Radio />} label="Completado" />
             <FormControlLabel value="Eliminado" control={<Radio />} label="Eliminado" />
             <FormControlLabel value="Incompleto" control={<Radio />} label="Incompleto" />
-            <FormControlLabel value="Todo" control={<Radio />} label="Todo" />
+            <FormControlLabel value="Blank" control={<Radio />} label="Blank" />
+
           </RadioGroup>
         </FormControl>
         {
-          toDoList.map(e => <ToDoList key={e.toDo} toDo={e.toDo} estado={e.estado} onDelete={onDelete} onEdit={onEdit} onComplete={onComplete} />)
+          auxToDoList.map(e => <ToDoListAux key={e.toDo} toDo={e.toDo} />)
         }
       </Card>
     </form>
-
   );
 }
 export default IndexCard;
