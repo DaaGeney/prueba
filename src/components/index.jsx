@@ -99,7 +99,7 @@ function IndexCard() {
       setOld(id)
       setEdit(true)
     } else {
-      snackBar("Esta tarea ya fue completada o eliminada");
+      snackBar("Esta tarea ya fue completada o eliminada.");
     }
   }
 
