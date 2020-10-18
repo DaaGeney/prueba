@@ -34,13 +34,17 @@ const useStyles = makeStyles({
   },
   actions: {
     display: "flex",
-    justifyContent: "space-between"
+    justifyContent: "space-between",
+    justifyContent: 'center'
   }
 });
 
 function IndexCard() {
   const classes = useStyles();
   const [task, setTask] = useState("");
+  const [countingDeleted, setCountingDeleted] = useState(0);
+  const [countingIncompleted, setCountingIncompleted] = useState(0);
+  const [countingDone, setCountingDone] = useState(0);
   const [oldTask, setOld] = useState("");
   const [textSnack, setTextSnack] = useState("");
   const [toDoList, settoDoList] = useState([]);
@@ -70,6 +74,8 @@ function IndexCard() {
     if (result[0].estado === 'Incompleto') {
       let temp = toDoList.map(e => e.toDo === id ? { ...e, estado: "Eliminado" } : e)
       settoDoList([...temp]);
+      setCountingIncompleted(countingIncompleted-1)
+      setCountingDeleted(countingDeleted+1)
     } else {
       snackBar("Esta tarea ya fue completada o eliminada");
     }
@@ -80,6 +86,8 @@ function IndexCard() {
     if (result[0].estado === 'Incompleto') {
       let temp = toDoList.map(e => e.toDo === id ? { ...e, estado: "Completado" } : e)
       settoDoList([...temp]);
+      setCountingIncompleted(countingIncompleted-1)
+      setCountingDone(countingDone+1)
     } else {
       snackBar("Esta tarea ya fue completada o eliminada");
     }
@@ -110,21 +118,22 @@ function IndexCard() {
     setAuxTodoList([...toDoList.filter(e => e.estado === event.target.value)])
   };
 
+
+
   const handleClick = (e) => {
     e.preventDefault()
     if (validateCreation.test(task)) {
       if (!edit) {
         settoDoList([...toDoList, { toDo: task, estado: "Incompleto" }]);
         setTask('')
+        setCountingIncompleted(countingIncompleted+1)
       } else {
-
         let temp = toDoList.map(e => e.toDo === oldTask ? { ...e, toDo: task } : e)
         settoDoList([...temp]);
         setEdit(false)
         setTask('')
         setValue('Blank')
       }
-
     } else {
       snackBar("Número de caracteres invalido!");
     }
@@ -154,6 +163,7 @@ function IndexCard() {
         {
           toDoList.map(e => <ToDoList key={e.toDo} toDo={e.toDo} estado={e.estado} onDelete={onDelete} onEdit={onEdit} onComplete={onComplete} />)
         }
+        <div className={classes.root}>{`Completos: ${countingDone}, Incompletos: ${countingIncompleted}, Eliminados: ${countingDeleted}`}</div>
         <FormControl component="fieldset">
           <FormLabel component="legend">Filtro</FormLabel>
           <RadioGroup row aria-label="Filtro" name="gender1" color="blue" value={value} onChange={handleRadio}>
@@ -168,6 +178,7 @@ function IndexCard() {
           auxToDoList.map(e => <ToDoListAux key={e.toDo} toDo={e.toDo} />)
         }
       </Card>
+
 
     </form>
 
