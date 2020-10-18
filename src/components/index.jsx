@@ -34,7 +34,6 @@ const useStyles = makeStyles({
   },
   actions: {
     display: "flex",
-    justifyContent: "space-between",
     justifyContent: 'center'
   }
 });
@@ -74,8 +73,8 @@ function IndexCard() {
     if (result[0].estado === 'Incompleto') {
       let temp = toDoList.map(e => e.toDo === id ? { ...e, estado: "Eliminado" } : e)
       settoDoList([...temp]);
-      setCountingIncompleted(countingIncompleted-1)
-      setCountingDeleted(countingDeleted+1)
+      setCountingIncompleted(countingIncompleted - 1)
+      setCountingDeleted(countingDeleted + 1)
     } else {
       snackBar("Esta tarea ya fue completada o eliminada");
     }
@@ -86,8 +85,8 @@ function IndexCard() {
     if (result[0].estado === 'Incompleto') {
       let temp = toDoList.map(e => e.toDo === id ? { ...e, estado: "Completado" } : e)
       settoDoList([...temp]);
-      setCountingIncompleted(countingIncompleted-1)
-      setCountingDone(countingDone+1)
+      setCountingIncompleted(countingIncompleted - 1)
+      setCountingDone(countingDone + 1)
     } else {
       snackBar("Esta tarea ya fue completada o eliminada");
     }
@@ -102,7 +101,6 @@ function IndexCard() {
     } else {
       snackBar("Esta tarea ya fue completada o eliminada");
     }
-
   }
 
   const ToDoListAux = (props) => {
@@ -113,12 +111,11 @@ function IndexCard() {
       </ListItem>
     );
   }
+
   const handleRadio = (event) => {
     setValue(event.target.value);
     setAuxTodoList([...toDoList.filter(e => e.estado === event.target.value)])
   };
-
-
 
   const handleClick = (e) => {
     e.preventDefault()
@@ -126,7 +123,7 @@ function IndexCard() {
       if (!edit) {
         settoDoList([...toDoList, { toDo: task, estado: "Incompleto" }]);
         setTask('')
-        setCountingIncompleted(countingIncompleted+1)
+        setCountingIncompleted(countingIncompleted + 1)
       } else {
         let temp = toDoList.map(e => e.toDo === oldTask ? { ...e, toDo: task } : e)
         settoDoList([...temp]);
@@ -161,7 +158,7 @@ function IndexCard() {
           </Button>
         </CardActions>
         {
-          toDoList.map(e => <ToDoList key={e.toDo} toDo={e.toDo} estado={e.estado} onDelete={onDelete} onEdit={onEdit} onComplete={onComplete} />)
+          toDoList.map(e => <ToDoList key={e.toDo} toDo={e.toDo} onDelete={onDelete} onEdit={onEdit} onComplete={onComplete} />)
         }
         <div className={classes.root}>{`Completos: ${countingDone}, Incompletos: ${countingIncompleted}, Eliminados: ${countingDeleted}`}</div>
         <FormControl component="fieldset">
@@ -178,10 +175,7 @@ function IndexCard() {
           auxToDoList.map(e => <ToDoListAux key={e.toDo} toDo={e.toDo} />)
         }
       </Card>
-
-
     </form>
-
   );
 }
 export default IndexCard;

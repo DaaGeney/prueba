@@ -6,17 +6,17 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/Edit';
 import DoneIcon from '@material-ui/icons/Done';
 
-
-
 export default function ToDoList(props) {
-    const { toDo, estado } = props;
+    const { toDo } = props;
 
     const deleteItem = () =>{
         props.onDelete(toDo)
     }
+
     const editItem = () =>{
         props.onEdit(toDo)
     }
+
     const completeItem = () =>{
         props.onComplete(toDo)
     }
@@ -35,5 +35,4 @@ export default function ToDoList(props) {
             </IconButton>
         </ListItem>
     );
-
 }
