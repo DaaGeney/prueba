@@ -14,7 +14,8 @@ import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormControl from '@material-ui/core/FormControl';
 import FormLabel from '@material-ui/core/FormLabel';
-
+import ListItem from '@material-ui/core/ListItem';
+import ListItemText from '@material-ui/core/ListItemText';
 
 const useStyles = makeStyles({
   root: {
@@ -43,10 +44,11 @@ function IndexCard() {
   const [oldTask, setOld] = useState("");
   const [textSnack, setTextSnack] = useState("");
   const [toDoList, settoDoList] = useState([]);
+  const [auxToDoList, setAuxTodoList] = useState([]);
   const [open, setOpen] = React.useState(false);
   const validateCreation = new RegExp("^.{6,40}$");
   const [edit, setEdit] = useState(false);
-  const [value, setValue] = React.useState('female');
+  const [value, setValue] = React.useState('Blank');
   let handleChange = (e) => {
     setTask(e.target.value)
   }
@@ -71,21 +73,41 @@ function IndexCard() {
     } else {
       snackBar("Esta tarea ya fue completada o eliminada");
     }
-
   }
+
   const onComplete = (id) => {
-    let temp = toDoList.map(e => e.toDo === id ? { ...e, estado: "Completado" } : e)
-    settoDoList([...temp]);
+    const result = toDoList.filter(e => e.toDo === id);
+    if (result[0].estado === 'Incompleto') {
+      let temp = toDoList.map(e => e.toDo === id ? { ...e, estado: "Completado" } : e)
+      settoDoList([...temp]);
+    } else {
+      snackBar("Esta tarea ya fue completada o eliminada");
+    }
   }
 
   const onEdit = (id) => {
-    setTask(id)
-    setOld(id)
-    setEdit(true)
+    const result = toDoList.filter(e => e.toDo === id);
+    if (result[0].estado === 'Incompleto') {
+      setTask(id)
+      setOld(id)
+      setEdit(true)
+    } else {
+      snackBar("Esta tarea ya fue completada o eliminada");
+    }
+
   }
 
+  const ToDoListAux = (props) => {
+    const { toDo } = props;
+    return (
+      <ListItem key={toDo}>
+        <ListItemText primary={` ${toDo} `} />
+      </ListItem>
+    );
+  }
   const handleRadio = (event) => {
     setValue(event.target.value);
+    setAuxTodoList([...toDoList.filter(e => e.estado === event.target.value)])
   };
 
   const handleClick = (e) => {
@@ -95,10 +117,12 @@ function IndexCard() {
         settoDoList([...toDoList, { toDo: task, estado: "Incompleto" }]);
         setTask('')
       } else {
+
         let temp = toDoList.map(e => e.toDo === oldTask ? { ...e, toDo: task } : e)
         settoDoList([...temp]);
         setEdit(false)
         setTask('')
+        setValue('Blank')
       }
 
     } else {
@@ -127,19 +151,24 @@ function IndexCard() {
             {edit ? "Editar" : "Crear"}
           </Button>
         </CardActions>
-        <FormControl component="fieldset">
-          <FormLabel component="legend">Filtro</FormLabel>
-          <RadioGroup row aria-label="Filtro" name="gender1" value={value} onChange={handleRadio}>
-            <FormControlLabel value="Completado" control={<Radio />} label="Completado" />
-            <FormControlLabel value="Eliminado" control={<Radio />} label="Eliminado" />
-            <FormControlLabel value="Incompleto" control={<Radio />} label="Incompleto" />
-            <FormControlLabel value="Todo" control={<Radio />} label="Todo" />
-          </RadioGroup>
-        </FormControl>
         {
           toDoList.map(e => <ToDoList key={e.toDo} toDo={e.toDo} estado={e.estado} onDelete={onDelete} onEdit={onEdit} onComplete={onComplete} />)
         }
+        <FormControl component="fieldset">
+          <FormLabel component="legend">Filtro</FormLabel>
+          <RadioGroup row aria-label="Filtro" name="gender1" color="blue" value={value} onChange={handleRadio}>
+            <FormControlLabel value="Completado" control={<Radio />} label="Completado" />
+            <FormControlLabel value="Eliminado" control={<Radio />} label="Eliminado" />
+            <FormControlLabel value="Incompleto" control={<Radio />} label="Incompleto" />
+            <FormControlLabel value="Blank" control={<Radio />} label="Blank" />
+
+          </RadioGroup>
+        </FormControl>
+        {
+          auxToDoList.map(e => <ToDoListAux key={e.toDo} toDo={e.toDo} />)
+        }
       </Card>
+
     </form>
 
   );
