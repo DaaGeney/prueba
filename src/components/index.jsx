@@ -43,10 +43,11 @@ function IndexCard() {
   const [oldTask, setOld] = useState("");
   const [textSnack, setTextSnack] = useState("");
   const [toDoList, settoDoList] = useState([]);
+  const [auxToDoList, setAuxTodoList] = useState();
   const [open, setOpen] = React.useState(false);
   const validateCreation = new RegExp("^.{6,40}$");
   const [edit, setEdit] = useState(false);
-  const [value, setValue] = React.useState('female');
+  const [value, setValue] = React.useState('Todo');
   let handleChange = (e) => {
     setTask(e.target.value)
   }
@@ -71,8 +72,8 @@ function IndexCard() {
     } else {
       snackBar("Esta tarea ya fue completada o eliminada");
     }
-
   }
+
   const onComplete = (id) => {
     let temp = toDoList.map(e => e.toDo === id ? { ...e, estado: "Completado" } : e)
     settoDoList([...temp]);
@@ -84,17 +85,38 @@ function IndexCard() {
     setEdit(true)
   }
 
+
   const handleRadio = (event) => {
     setValue(event.target.value);
+    if (event.target.value !== "Todo") {
+      if (auxToDoList) {
+        settoDoList(auxToDoList.filter(e => e.estado === event.target.value))
+      } else {
+        setAuxTodoList([...toDoList])
+        settoDoList(toDoList.filter(e => e.estado === event.target.value))
+      }
+
+    } else {
+      settoDoList([...auxToDoList])
+    }
   };
 
   const handleClick = (e) => {
     e.preventDefault()
     if (validateCreation.test(task)) {
       if (!edit) {
-        settoDoList([...toDoList, { toDo: task, estado: "Incompleto" }]);
+        if(auxToDoList){
+          
+          setAuxTodoList([...auxToDoList, { toDo: task, estado: "Incompleto" }]);
+          setValue('Todo')
+          settoDoList([...auxToDoList])
+        }else{
+          settoDoList([...toDoList, { toDo: task, estado: "Incompleto" }]);
+        }
         setTask('')
+        
       } else {
+        
         let temp = toDoList.map(e => e.toDo === oldTask ? { ...e, toDo: task } : e)
         settoDoList([...temp]);
         setEdit(false)
@@ -129,7 +151,7 @@ function IndexCard() {
         </CardActions>
         <FormControl component="fieldset">
           <FormLabel component="legend">Filtro</FormLabel>
-          <RadioGroup row aria-label="Filtro" name="gender1" value={value} onChange={handleRadio}>
+          <RadioGroup row aria-label="Filtro" name="gender1" color="blue" value={value} onChange={handleRadio}>
             <FormControlLabel value="Completado" control={<Radio />} label="Completado" />
             <FormControlLabel value="Eliminado" control={<Radio />} label="Eliminado" />
             <FormControlLabel value="Incompleto" control={<Radio />} label="Incompleto" />
